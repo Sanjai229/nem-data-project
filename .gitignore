@@ -1,0 +1,18 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets - never commit passwords
+.env
+profiles.yml
+
+# Raw data - too large for Git
+data/
+*.zip
+
+# dbt build output
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+logs/
