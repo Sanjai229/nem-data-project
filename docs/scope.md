@@ -48,7 +48,7 @@ AEMO data is public. Source: Australian Energy Market Operator (AEMO).
 - **Grain mismatch.** Prices come every 5 minutes, weather once a day. How I handle this is explained in the star schema design and the decision log.
 - **One station per region.** A capital-city station doesn't represent a whole state's weather, but the capitals account for most of the demand.
 - **Extreme prices.** Prices can spike to thousands of dollars per MWh, or go below zero. These are real market events, not errors, so they are kept.
-- **BOM's daily window.** BOM's daily values don't run midnight to midnight. Rainfall covers the 24 hours to 9 am, and the max and min temperatures also use 9 am windows. This needs handling when joining weather to price data by date.
+- **BOM's daily window.** BOM's daily values run 9am to 9am. Rainfall covers the 24 hours to 9 am, and the max and min temperatures also use 9 am windows. This needs handling when joining weather to price data by date.
 
 ## Success criteria
 - 12 months of data loaded for all five regions, with any missing intervals detected by dbt tests and reported
