@@ -79,6 +79,8 @@ erDiagram
 
 The main table. Price and demand for each region, every 5 minutes.
 
+**Key:** one row per (region_key, date_key, time_key).
+
 | Column | Meaning |
 |---|---|
 | region_key | Links to dim_region |
@@ -86,11 +88,13 @@ The main table. Price and demand for each region, every 5 minutes.
 | time_key | Links to dim_time, e.g. 1430 for the 14:30 to 14:35 slot |
 | interval_end_aest | The original AEMO timestamp, kept for checking |
 | price_aud_mwh | Dispatch price in $/MWh. Negative and very high prices are kept |
-| demand_mw | Regional demand in MW |
+| demand_mw | Regional demand in MW, from AEMO's TOTALDEMAND field. This excludes rooftop solar (see below) |
 
 ### fact_daily_weather
 
 Daily weather for each region, from one BOM station per region.
+
+**Key:** one row per (region_key, date_key).
 
 | Column | Meaning |
 |---|---|
@@ -136,6 +140,12 @@ Daily weather for each region, from one BOM station per region.
 | hour | 14 |
 | time_band | Afternoon (Night 00-06, Morning 06-12, Afternoon 12-18, Evening 18-24) |
 
+## Which demand measure
+
+I use TOTALDEMAND from AEMO's 5-minute dispatch data. This is AEMO's standard regional demand. It only counts power supplied through the grid, so it does not include rooftop solar.
+
+This matters for my results. On sunny days, rooftop solar covers part of household use, so grid demand drops around midday. A link between high solar exposure and lower demand will partly reflect rooftop solar, not people using less power. I will keep this in mind when I interpret the weather and demand results.
+
 ## How weather fits in
 
 Prices are every 5 minutes. Weather is once a day. These are two different grains.
@@ -146,7 +156,30 @@ I chose to keep weather in its own daily fact table, rather than copying it onto
 - Shrinking prices to daily would lose time of day, which my first question needs
 - A separate daily table keeps each table at one grain
 
-Both fact tables share dim_region and dim_date. This lets Power BI compare them. To compare price with weather, I roll prices up to a daily figure (such as daily peak demand) and join on region and date.
+Both fact tables share dim_region and dim_date. This lets them be compared on the same region and day.
+
+## Daily roll-up model
+
+To compare price and demand with weather, I will build the daily roll-up as its own dbt model, not as a calculation in Power BI. This keeps the logic in one place, makes it testable, and lets it be reused.
+
+**mart_daily_region** - one row per region per day:
+
+| Column | Meaning |
+|---|---|
+| region_key, date_key | Links to dim_region and dim_date |
+| peak_demand_mw | Highest 5-minute demand that day |
+| avg_price_aud_mwh | Average price that day |
+| max_price_aud_mwh | Highest price that day |
+| max_temp_c, min_temp_c, solar_exposure_mj_m2, rainfall_mm | That day's weather |
+
+## Planned dbt tests
+
+| Test | What it checks | Why |
+|---|---|---|
+| Unique (region_key, date_key, time_key) on fact_price_demand | No duplicate intervals | Duplicates would double count price and demand |
+| 288 rows per region per day | No missing intervals | Detects and reports gaps, a success criterion in scope.md |
+| Unique (region_key, date_key) on fact_daily_weather | One weather row per region per day | Stops weather being counted twice |
+| Keys are not null and match a dimension row | Every fact row links to a real region, date and time | Rows with broken links would drop out of Power BI charts |
 
 ## Time rules
 
