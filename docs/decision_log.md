@@ -17,6 +17,7 @@ These are the main choices I made in this project, why I made them, and what I g
 | 11 | Using AEST for all regions |
 | 12 | Keeping BOM dates as they are |
 | 13 | Daily summary in dbt, not Power BI |
+| 14 | Using AEMO's monthly archive for the data |
 
 ---
 
@@ -82,7 +83,7 @@ These are the main choices I made in this project, why I made them, and what I g
 
 **Why:** It's AEMO's standard demand number and it comes in the same files as price.
 
-**Downside:** It doesn't include rooftop solar. On sunny days, demand looks lower around midday because people's roofs are covering some of their power. I need to remember this when I look at the weather results.
+**Downside:** It doesn't include rooftop solar. On sunny days, demand looks lower around midday because people's roofs are covering some of their power. I need to remember this when I look at the weather results. Behrouz agreed that noting this is enough for this project. Adding AEMO's rooftop solar estimates (30-minute data) is a stretch goal after M4.
 
 ## 9. Weather in its own daily table
 
@@ -127,3 +128,23 @@ These are the main choices I made in this project, why I made them, and what I g
 **Why:** If the maths is in dbt, I can test it and use it again. If it's inside Power BI, it's hidden and can't be tested. Behrouz suggested this in the NEM-11 review.
 
 **Downside:** It's one more model to build and test in M3.
+
+## 14. Using AEMO's monthly archive for the data
+
+**What I chose:** The MMSDM monthly archive on NEMweb.
+
+**Where:** `nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/<year>/MMSDM_<year>_<month>/MMSDM_Historical_Data_SQLLoader/DATA/`
+
+**Files I need:** For each month, `DISPATCHPRICE` (price) and `DISPATCHREGIONSUM` (demand). Each file has all five regions. That's 24 files for 12 months.
+
+**Other options I looked at:**
+- Reports/Current - only keeps the last few days
+- Reports/Archive/DispatchIS_Reports - one zip per day, but only keeps about 12 months. When I checked on 25 Oct 2026, the oldest file was 15 Oct 2025, so 1 to 14 Oct 2025 was already gone, and more drops off every day
+
+**Why:** The monthly archive has all 12 months, it doesn't delete old data, and it's 24 files instead of 365.
+
+**Downside:** Monthly files come out about two weeks after the month ends, so they don't work for very recent data. That's fine for my fixed date range.
+
+**Things to remember for M2 and M3:**
+- File names have `#` in them, which must be written as `%23` in a download link
+- Keep only rows where INTERVENTION = 0 (the normal market run). Rows with INTERVENTION = 1 come from AEMO's intervention runs and would duplicate intervals. This keeps each region-day at 288 rows
