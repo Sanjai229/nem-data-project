@@ -147,4 +147,4 @@ These are the main choices I made in this project, why I made them, and what I g
 
 **Things to remember for M2 and M3:**
 - File names have `#` in them, which must be written as `%23` in a download link
-- Some intervals can have an extra row with an INTERVENTION flag. I'll handle this in M3 so there are no duplicates
+- Keep only rows where INTERVENTION = 0 (the normal market run). Rows with INTERVENTION = 1 come from AEMO's intervention runs and would duplicate intervals. This keeps each region-day at 288 rows
