@@ -18,6 +18,7 @@ These are the main choices I made in this project, why I made them, and what I g
 | 12 | Keeping BOM dates as they are |
 | 13 | Daily summary in dbt, not Power BI |
 | 14 | Using AEMO's monthly archive for the data |
+| 15 | Two PostgreSQL packages: psycopg and psycopg2-binary |
 
 ---
 
@@ -148,3 +149,11 @@ These are the main choices I made in this project, why I made them, and what I g
 **Things to remember for M2 and M3:**
 - File names have `#` in them, which must be written as `%23` in a download link
 - Keep only rows where INTERVENTION = 0 (the normal market run). Rows with INTERVENTION = 1 come from AEMO's intervention runs and would duplicate intervals. This keeps each region-day at 288 rows
+
+## 15. Two PostgreSQL packages: psycopg and psycopg2-binary
+
+**What I chose:** Keep both in requirements.txt.
+
+**Why:** My Python scripts use psycopg (version 3), the current version. dbt-postgres installs psycopg2-binary (version 2) for its own use. Each tool needs its own package, so both stay.
+
+**Downside:** It can look like a mistake in requirements.txt. This note explains it.
