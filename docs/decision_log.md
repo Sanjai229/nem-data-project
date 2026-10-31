@@ -19,6 +19,7 @@ These are the main choices I made in this project, why I made them, and what I g
 | 13 | Daily summary in dbt, not Power BI |
 | 14 | Using AEMO's monthly archive for the data |
 | 15 | Two PostgreSQL packages: psycopg and psycopg2-binary |
+| 16 | Raw AEMO tables keep every column, as text |
 
 ---
 
@@ -157,3 +158,11 @@ These are the main choices I made in this project, why I made them, and what I g
 **Why:** My Python scripts use psycopg (version 3), the current version. dbt-postgres installs psycopg2-binary (version 2) for its own use. Each tool needs its own package, so both stay.
 
 **Downside:** It can look like a mistake in requirements.txt. This note explains it.
+
+## 16. Raw AEMO tables keep every column, as text
+
+**What I chose:** Load every column from the AEMO files into the raw tables, stored as text. I only drop the first four label columns (like D, DISPATCH, PRICE, 5), lowercase the column names, and add source_file and loaded_at.
+
+**Why:** Raw should be a true copy of the source. Keeping every column means I don't need to download again if I need another column later. Keeping values as text means nothing gets changed or lost on the way in. dbt sets the proper types in M3.
+
+**Downside:** The raw tables are wider than I need, and every value needs converting in dbt.
