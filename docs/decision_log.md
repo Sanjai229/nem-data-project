@@ -20,6 +20,7 @@ These are the main choices I made in this project, why I made them, and what I g
 | 14 | Using AEMO's monthly archive for the data |
 | 15 | Two PostgreSQL packages: psycopg and psycopg2-binary |
 | 16 | Raw AEMO tables keep every column, as text |
+| 17 | Blank AEMO values stay as '' in raw, turned into NULL in dbt |
 
 ---
 
@@ -166,3 +167,13 @@ These are the main choices I made in this project, why I made them, and what I g
 **Why:** Raw should be a true copy of the source. Keeping every column means I don't need to download again if I need another column later. Keeping values as text means nothing gets changed or lost on the way in. dbt sets the proper types in M3.
 
 **Downside:** The raw tables are wider than I need, and every value needs converting in dbt.
+
+## 17. Blank AEMO values stay as '' in raw, turned into NULL in dbt
+
+**What I chose:** Keep blank values as empty text ('') in the raw tables. In dbt, use NULLIF(column, '') before turning text into numbers or dates.
+
+**Other option I looked at:** Turning '' into NULL while loading.
+
+**Why:** It keeps raw a true copy of the source (decision 16). All changes to the data happen in one place, dbt, where they can be tested.
+
+**Downside:** Every column that gets converted in dbt needs NULLIF. Without it, the conversion fails on blank values. My mentor flagged this in the NEM-15 review.

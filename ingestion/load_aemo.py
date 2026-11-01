@@ -29,10 +29,16 @@ def download(table, year, month):
         print(f"Already downloaded: {path.name}")
         return path
 
-    print(f"Downloading {path.name} ...")
-    response = requests.get(file_url(table, year, month), timeout=120)
-    response.raise_for_status()
-    path.write_bytes(response.content)
+        print(f"Downloading {path.name} ...")
+    # Download to a .part file first, so a cut-off download never looks finished
+    temp_path = path.with_name(path.name + ".part")
+    with requests.get(file_url(table, year, month), stream=True, timeout=120) as response:
+        response.raise_for_status()
+        with open(temp_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=1024 * 1024):
+                f.write(chunk)
+    # Only reached if the whole download finished
+    temp_path.replace(path)
     return path
 
 
