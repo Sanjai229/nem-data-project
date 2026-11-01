@@ -71,6 +71,8 @@ def load_to_postgres(df, table_name, source_file):
 
     Every AEMO column is stored as text. Two columns are added:
     source_file (which zip the row came from) and loaded_at (when it was loaded).
+    Any rows already loaded from the same file are deleted first, in the same
+    transaction, so running the script again replaces data instead of duplicating it.
     """
     df = df.copy()
     df["source_file"] = source_file
@@ -84,9 +86,12 @@ def load_to_postgres(df, table_name, source_file):
             f"CREATE TABLE IF NOT EXISTS raw.{table_name} "
             f"({column_defs}, loaded_at timestamptz DEFAULT now())"
         )
-        # AEMO sometimes adds new columns. Add any the table doesn't have yet.
-        for c in columns:
-            conn.execute(f'ALTER TABLE raw.{table_name} ADD COLUMN IF NOT EXISTS "{c}" text')
+        # Remove rows already loaded from this file, so a re-run replaces them
+        deleted = conn.execute(
+            f"DELETE FROM raw.{table_name} WHERE source_file = %s", (source_file,)
+        ).rowcount
+        if deleted:
+            print(f"Replaced {deleted:,} existing rows from {source_file}")
 
         with conn.cursor() as cur:
             with cur.copy(f"COPY raw.{table_name} ({column_list}) FROM STDIN") as copy:
