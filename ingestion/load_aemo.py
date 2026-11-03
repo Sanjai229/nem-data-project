@@ -83,6 +83,10 @@ def load_to_postgres(df, table_name, source_file):
             f"CREATE TABLE IF NOT EXISTS raw.{table_name} "
             f"({column_defs}, loaded_at timestamptz DEFAULT now())"
         )
+        # AEMO sometimes adds new columns. Add any the table doesn't have yet.
+        for c in columns:
+            conn.execute(f'ALTER TABLE raw.{table_name} ADD COLUMN IF NOT EXISTS "{c}" text')
+
         # Remove rows already loaded from this file, so a re-run replaces them
         deleted = conn.execute(
             f"DELETE FROM raw.{table_name} WHERE source_file = %s", (source_file,)
@@ -90,7 +94,8 @@ def load_to_postgres(df, table_name, source_file):
         if deleted:
             print(f"Replaced {deleted:,} existing rows from {source_file}")
 
-        with (conn.cursor() as cur,
+        with (
+            conn.cursor() as cur,
             cur.copy(f"COPY raw.{table_name} ({column_list}) FROM STDIN") as copy,
         ):
             for row in df.itertuples(index=False, name=None):
