@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pandas as pd
 import requests
-
 from db import get_connection
 
 BASE_URL = "https://nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM"
@@ -29,14 +28,13 @@ def download(table, year, month):
         print(f"Already downloaded: {path.name}")
         return path
 
-        print(f"Downloading {path.name} ...")
+    print(f"Downloading {path.name} ...")
     # Download to a .part file first, so a cut-off download never looks finished
     temp_path = path.with_name(path.name + ".part")
     with requests.get(file_url(table, year, month), stream=True, timeout=120) as response:
         response.raise_for_status()
         with open(temp_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=1024 * 1024):
-                f.write(chunk)
+            f.writelines(response.iter_content(chunk_size=1024 * 1024))
     # Only reached if the whole download finished
     temp_path.replace(path)
     return path
@@ -50,13 +48,12 @@ def read_mms_csv(path):
     """
     header = None
     rows = []
-    with zipfile.ZipFile(path) as z:
-        with z.open(z.namelist()[0]) as f:
-            for row in csv.reader(io.TextIOWrapper(f, encoding="utf-8")):
-                if row[0] == "I":
-                    header = row
-                elif row[0] == "D":
-                    rows.append(row)
+    with zipfile.ZipFile(path) as z, z.open(z.namelist()[0]) as f:
+        for row in csv.reader(io.TextIOWrapper(f, encoding="utf-8")):
+            if row[0] == "I":
+                header = row
+            elif row[0] == "D":
+                rows.append(row)
 
     df = pd.DataFrame(rows, columns=header)
     # The first 4 columns are just the row type and table name, e.g. D, DISPATCH, PRICE, 5
@@ -71,6 +68,8 @@ def load_to_postgres(df, table_name, source_file):
 
     Every AEMO column is stored as text. Two columns are added:
     source_file (which zip the row came from) and loaded_at (when it was loaded).
+    Any rows already loaded from the same file are deleted first, in the same
+    transaction, so running the script again replaces data instead of duplicating it.
     """
     df = df.copy()
     df["source_file"] = source_file
@@ -88,10 +87,19 @@ def load_to_postgres(df, table_name, source_file):
         for c in columns:
             conn.execute(f'ALTER TABLE raw.{table_name} ADD COLUMN IF NOT EXISTS "{c}" text')
 
-        with conn.cursor() as cur:
-            with cur.copy(f"COPY raw.{table_name} ({column_list}) FROM STDIN") as copy:
-                for row in df.itertuples(index=False, name=None):
-                    copy.write_row(row)
+        # Remove rows already loaded from this file, so a re-run replaces them
+        deleted = conn.execute(
+            f"DELETE FROM raw.{table_name} WHERE source_file = %s", (source_file,)
+        ).rowcount
+        if deleted:
+            print(f"Replaced {deleted:,} existing rows from {source_file}")
+
+        with (
+            conn.cursor() as cur,
+            cur.copy(f"COPY raw.{table_name} ({column_list}) FROM STDIN") as copy,
+        ):
+            for row in df.itertuples(index=False, name=None):
+                copy.write_row(row)
 
     print(f"Loaded {len(df):,} rows into raw.{table_name}")
 

@@ -21,6 +21,7 @@ These are the main choices I made in this project, why I made them, and what I g
 | 15 | Two PostgreSQL packages: psycopg and psycopg2-binary |
 | 16 | Raw AEMO tables keep every column, as text |
 | 17 | Blank AEMO values stay as '' in raw, turned into NULL in dbt |
+| 18 | Re-runs replace data by source_file |
 
 ---
 
@@ -177,3 +178,13 @@ These are the main choices I made in this project, why I made them, and what I g
 **Why:** It keeps raw a true copy of the source (decision 16). All changes to the data happen in one place, dbt, where they can be tested.
 
 **Downside:** Every column that gets converted in dbt needs NULLIF. Without it, the conversion fails on blank values. My mentor flagged this in the NEM-15 review.
+
+## 18. Re-runs replace data by source_file
+
+**What I chose:** Before loading a file, delete any rows with the same source_file, then load it. Both happen in one transaction.
+
+**Other option I looked at:** A separate table listing which files have been loaded, and skipping those.
+
+**Why:** It uses the source_file column I already have, so there's no extra table. A re-run also picks up any fixes, because the data is replaced rather than skipped. If the load fails, the delete is undone too, so a month is never left empty. My mentor suggested this in the NEM-15 review.
+
+**Downside:** A re-run reloads every file, which takes a few minutes. That's fine for 24 files.
