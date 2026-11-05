@@ -24,7 +24,7 @@ AEMO data is public. Source: Australian Energy Market Operator (AEMO).
 
 | NEM region | Weather station | BOM station number |
 |---|---|---|
-| NSW1 | Sydney (Observatory Hill) | 066062 |
+| NSW1 | Sydney (Observatory Hill) | 066214 |
 | VIC1 | Melbourne (Olympic Park) | 086338 |
 | QLD1 | Brisbane | 040913 |
 | SA1 | Adelaide (West Terrace) | 023000 |
