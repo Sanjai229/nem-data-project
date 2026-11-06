@@ -1,0 +1,25 @@
+check,table,key,detail
+bom_blank,bom_max_temp,040913 2026-01-20,blank maximum_temperature_degree_c
+bom_blank,bom_max_temp,066214 2026-03-31,blank maximum_temperature_degree_c
+bom_blank,bom_max_temp,086338 2026-03-11,blank maximum_temperature_degree_c
+bom_blank,bom_max_temp,094029 2025-10-22,blank maximum_temperature_degree_c
+bom_blank,bom_max_temp,094029 2026-08-31,blank maximum_temperature_degree_c
+bom_quality_n,bom_max_temp,023000,147 days not yet quality checked by BOM
+bom_quality_n,bom_max_temp,040913,151 days not yet quality checked by BOM
+bom_quality_n,bom_max_temp,086338,142 days not yet quality checked by BOM
+bom_quality_n,bom_max_temp,094029,199 days not yet quality checked by BOM
+bom_blank,bom_min_temp,066214 2026-07-08,blank minimum_temperature_degree_c
+bom_quality_n,bom_min_temp,023000,149 days not yet quality checked by BOM
+bom_quality_n,bom_min_temp,040913,151 days not yet quality checked by BOM
+bom_quality_n,bom_min_temp,086338,142 days not yet quality checked by BOM
+bom_quality_n,bom_min_temp,094029,199 days not yet quality checked by BOM
+bom_blank,bom_rainfall,040913 2026-07-18,blank rainfall_amount_millimetres
+bom_blank,bom_rainfall,040913 2026-07-19,blank rainfall_amount_millimetres
+bom_blank,bom_rainfall,040913 2026-07-20,blank rainfall_amount_millimetres
+bom_blank,bom_rainfall,040913 2026-07-21,blank rainfall_amount_millimetres
+bom_blank,bom_rainfall,040913 2026-07-22,blank rainfall_amount_millimetres
+bom_quality_n,bom_rainfall,023000,242 days not yet quality checked by BOM
+bom_quality_n,bom_rainfall,040913,238 days not yet quality checked by BOM
+bom_quality_n,bom_rainfall,066214,179 days not yet quality checked by BOM
+bom_quality_n,bom_rainfall,086338,181 days not yet quality checked by BOM
+bom_quality_n,bom_rainfall,094029,206 days not yet quality checked by BOM
