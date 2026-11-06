@@ -116,7 +116,7 @@ Daily weather for each region, from one BOM station per region.
 | state | New South Wales |
 | capital_city | Sydney |
 | bom_station_name | Sydney (Observatory Hill) |
-| bom_station_id | 066062 |
+| bom_station_id | 066214 |
 
 ### dim_date
 

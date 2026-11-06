@@ -22,6 +22,8 @@ These are the main choices I made in this project, why I made them, and what I g
 | 16 | Raw AEMO tables keep every column, as text |
 | 17 | Blank AEMO values stay as '' in raw, turned into NULL in dbt |
 | 18 | Re-runs replace data by source_file |
+| 19 | BOM files downloaded by hand, raw keeps all years |
+| 20 | Sydney weather station changed to 066214 |
 
 ---
 
@@ -188,3 +190,21 @@ These are the main choices I made in this project, why I made them, and what I g
 **Why:** It uses the source_file column I already have, so there's no extra table. A re-run also picks up any fixes, because the data is replaced rather than skipped. If the load fails, the delete is undone too, so a month is never left empty. My mentor suggested this in the NEM-15 review.
 
 **Downside:** A re-run reloads every file, which takes a few minutes. That's fine for 24 files.
+
+## 19. BOM files downloaded by hand, raw keeps all years
+
+**What I chose:** Download the 20 BOM files by hand from Climate Data Online (5 stations x max temp, min temp, rainfall, solar exposure), unzip them into data/bom/, then load the _Data.csv files with a script. Raw tables keep every year in each file, not just my date range.
+
+**Why:** Climate Data Online doesn't offer simple download links, and it's only 20 files, once. The loading part is still a script, reuses load_to_postgres, and is safe to re-run. Keeping all years follows my rule that raw is a true copy of the source (decision 16). dbt filters to Oct 2025 to Sep 2026.
+
+**Downside:** Anyone setting this up has to download the files by hand. The README will list the exact steps. The CSVs shouldn't be opened and saved in Excel, as it changes station numbers like 066214 to 66214.
+
+## 20. Sydney weather station changed to 066214
+
+**What I chose:** Use station 066214 Sydney (Observatory Hill) instead of 066062.
+
+**Why:** When I downloaded the BOM files, 066062 showed "Year site closed: 31 Aug 2020", with no data after that. BOM's list of open stations showed 066214 at the same site, still open, with temperature and rainfall up to November 2026. So Sydney stays at Observatory Hill, just under a new number.
+
+**Downside:** None for my date range. Anyone comparing with older studies should know the number changed in 2020.
+
+**Also found:** All five stations have 365 days for Oct 2025 to Sep 2026, but a few max temp values are blank: Sydney 31 Mar 2026, Melbourne 11 Mar 2026, Brisbane 20 Jan 2026, Hobart 22 Oct 2025 and 31 Aug 2026. They stay blank in raw and will be reported in the gap checks.
