@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 import pandas as pd
-from load_aemo import load_to_postgres
+from loaders import load_to_postgres
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "bom"
 
