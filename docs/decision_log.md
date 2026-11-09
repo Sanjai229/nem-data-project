@@ -24,6 +24,8 @@ These are the main choices I made in this project, why I made them, and what I g
 | 18 | Re-runs replace data by source_file |
 | 19 | BOM files downloaded by hand, raw keeps all years |
 | 20 | Sydney weather station changed to 066214 |
+| 21 | Load checks report problems instead of stopping |
+| 22 | Keep quality N weather data and show the flag |
 
 ---
 
@@ -208,3 +210,21 @@ These are the main choices I made in this project, why I made them, and what I g
 **Downside:** None for my date range. Anyone comparing with older studies should know the number changed in 2020.
 
 **Also found:** All five stations have 365 days for Oct 2025 to Sep 2026, but a few max temp values are blank: Sydney 31 Mar 2026, Melbourne 11 Mar 2026, Brisbane 20 Jan 2026, Hobart 22 Oct 2025 and 31 Aug 2026. They stay blank in raw and will be reported in the gap checks.
+
+## 21. Load checks report problems instead of stopping
+
+**What I chose:** A separate script, check_loads.py, runs after loading. It checks every region-day has 288 AEMO intervals with no duplicates, and every BOM station has one row per day. It also reports blank values, values covering more than one day, and the number of days BOM hasn't quality-checked yet (quality N). Everything goes into reports/gap_log.csv.
+
+**Why:** Gaps in source data are real and can't be fixed by reloading, so the checks report them rather than stopping the pipeline. The log shows exactly what is missing, which helps decide how to handle it in dbt. Quality N is counted per station rather than listed day by day, because recent months have hundreds of unchecked days.
+
+**Results (Nov 2026):** AEMO is complete, with 288 intervals on every region-day and no duplicates. BOM has no missing days, but 11 blank values (5 max temp, 1 min temp, 5 rainfall) and no multi-day values. About a third of temperature days and over half of rainfall days are quality N. Solar files have no quality column.
+
+**Downside:** The checks run on demand, not automatically after each load. They can be added to the pipeline later.
+
+## 22. Keep quality N weather data and show the flag
+
+**What I chose:** Keep BOM values marked quality N (not yet checked by BOM). Carry the quality flag through into the dbt models, and state the share of unchecked days in the dashboard and write-up.
+
+**Why:** Quality N is normal for recent data, and it's the only data available for my date range. About 35% of temperature days and 57% of rainfall days are quality N. Dropping them would remove over a third of the weather data. Keeping the flag means anyone can filter or check results with only quality-checked days. My mentor suggested this in the NEM-18 review.
+
+**Downside:** BOM may still adjust some of these values after checking. Results using weather should note this.
