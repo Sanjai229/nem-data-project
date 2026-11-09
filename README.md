@@ -12,10 +12,11 @@ An end-to-end data pipeline using public Australian energy and weather data.
 | M2 | Load raw data into PostgreSQL | Done |
 | M3 | Clean, model and test with dbt | Next |
 | M4 | Power BI dashboard and write-up | |
+| M5 | Cloud and automation (Azure, GitHub Actions) | |
 
 ## Stack
 
-Python, PostgreSQL, dbt, Power BI, Git and GitHub, Jira
+Python, PostgreSQL, dbt, Power BI, Git and GitHub, Jira. Azure and GitHub Actions in M5.
 
 ## Project structure
 
