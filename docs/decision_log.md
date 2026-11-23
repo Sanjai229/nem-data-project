@@ -26,6 +26,7 @@ These are the main choices I made in this project, why I made them, and what I g
 | 20 | Sydney weather station changed to 066214 |
 | 21 | Load checks report problems instead of stopping |
 | 22 | Keep quality N weather data and show the flag |
+| 23 | dbt setup: login outside the repo, staging views and marts tables |
 
 ---
 
@@ -228,3 +229,15 @@ These are the main choices I made in this project, why I made them, and what I g
 **Why:** Quality N is normal for recent data, and it's the only data available for my date range. About 35% of temperature days and 57% of rainfall days are quality N. Dropping them would remove over a third of the weather data. Keeping the flag means anyone can filter or check results with only quality-checked days. My mentor suggested this in the NEM-18 review.
 
 **Downside:** BOM may still adjust some of these values after checking. Results using weather should note this.
+
+## 23. dbt setup: login outside the repo, staging views and marts tables
+
+**What I chose:**
+- dbt's login (profiles.yml) lives in my user folder, not the project. The repo has profiles.example.yml with a placeholder password
+- Three schemas: raw (from M2), staging (cleaned copies of each raw table) and marts (the star schema)
+- Staging models are views. Marts models are tables
+- A small macro keeps the schema names simple (staging, not analytics_staging)
+
+**Why:** The password can never reach GitHub, the same rule as .env. Views for staging mean no extra copies of 1 million rows, and they always show the latest raw data. Marts are tables so Power BI reads them quickly.
+
+**Downside:** The password is in two places (.env for Python, profiles.yml for dbt). Both stay out of Git.
