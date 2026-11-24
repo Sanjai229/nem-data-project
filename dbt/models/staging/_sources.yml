@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: Raw data loaded by the Python scripts in ingestion/. Every column is text, exactly as the source provided it.
+    tables:
+      - name: aemo_dispatch_price
+        description: AEMO 5-minute dispatch prices (DISPATCHPRICE) from the MMSDM monthly archive.
+      - name: aemo_dispatch_regionsum
+        description: AEMO 5-minute regional demand (DISPATCHREGIONSUM) from the MMSDM monthly archive.
+      - name: bom_max_temp
+        description: BOM daily maximum temperature, all years for each station.
+      - name: bom_min_temp
+        description: BOM daily minimum temperature, all years for each station.
+      - name: bom_rainfall
+        description: BOM daily rainfall, all years for each station.
+      - name: bom_solar_exposure
+        description: BOM daily solar exposure, all years for each station.
