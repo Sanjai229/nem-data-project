@@ -27,6 +27,7 @@ These are the main choices I made in this project, why I made them, and what I g
 | 21 | Load checks report problems instead of stopping |
 | 22 | Keep quality N weather data and show the flag |
 | 23 | dbt setup: login outside the repo, staging views and marts tables |
+| 24 | Removed the dbt State plugin |
 
 ---
 
@@ -241,3 +242,11 @@ These are the main choices I made in this project, why I made them, and what I g
 **Why:** The password can never reach GitHub, the same rule as .env. Views for staging mean no extra copies of 1 million rows, and they always show the latest raw data. Marts are tables so Power BI reads them quickly.
 
 **Downside:** The password is in two places (.env for Python, profiles.yml for dbt). Both stay out of Git.
+
+## 24. Removed the dbt State plugin
+
+**What I chose:** Uninstall the dbt-state package and keep it out of requirements.txt.
+
+**Why:** dbt-state is a paid dbt cloud add-on. It had been installed alongside dbt and made every dbt build open a browser to log in to a dbt account. It doesn't support PostgreSQL, and this project doesn't need it. Removing it means dbt runs fully offline.
+
+**Downside:** None for this project.
