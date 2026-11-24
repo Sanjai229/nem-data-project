@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: stg_aemo__price
+    description: AEMO 5-minute price per region. INTERVENTION = 0 only, keyed by interval start (AEST), Oct 2025 to Sep 2026.
+    columns:
+      - name: region_code
+        description: NEM region, e.g. NSW1.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["NSW1", "QLD1", "SA1", "TAS1", "VIC1"]
+      - name: interval_start_aest
+        description: Start of the 5-minute interval, AEST (market time, no daylight saving).
+        data_tests:
+          - not_null
+      - name: interval_end_aest
+        description: End of the interval. This is AEMO's original SETTLEMENTDATE.
+      - name: market_date
+        description: The market day the interval belongs to.
+      - name: price_aud_mwh
+        description: Regional reference price (RRP) in $/MWh. Negative and very high prices are kept.
+        data_tests:
+          - not_null
+
+  - name: stg_aemo__demand
+    description: AEMO 5-minute demand per region. INTERVENTION = 0 only, keyed by interval start (AEST), Oct 2025 to Sep 2026.
+    columns:
+      - name: region_code
+        description: NEM region, e.g. NSW1.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["NSW1", "QLD1", "SA1", "TAS1", "VIC1"]
+      - name: interval_start_aest
+        description: Start of the 5-minute interval, AEST.
+        data_tests:
+          - not_null
+      - name: interval_end_aest
+        description: End of the interval. This is AEMO's original SETTLEMENTDATE.
+      - name: market_date
+        description: The market day the interval belongs to.
+      - name: demand_mw
+        description: TOTALDEMAND in MW. Excludes rooftop solar.
+        data_tests:
+          - not_null
