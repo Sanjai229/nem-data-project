@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: dim_region
+    description: One row per NEM region, with the BOM weather station used for it.
+    columns:
+      - name: region_key
+        description: Key used by the fact tables.
+        data_tests:
+          - unique
+          - not_null
+      - name: region_code
+        description: AEMO region code, e.g. NSW1.
+        data_tests:
+          - unique
+          - not_null
+      - name: bom_station_id
+        description: BOM station number for the region's weather. Links to stg_bom__daily_weather.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_date
+    description: One row per day, 1 Oct 2025 to 30 Sep 2026.
+    columns:
+      - name: date_key
+        description: Date as a number, YYYYMMDD.
+        data_tests:
+          - unique
+          - not_null
+      - name: season
+        description: Southern Hemisphere season.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Summer", "Autumn", "Winter", "Spring"]
+
+  - name: dim_time
+    description: One row per 5-minute slot in a day, keyed by slot start time.
+    columns:
+      - name: time_key
+        description: Slot start as HHMM, e.g. 1430 for 14:30 to 14:35.
+        data_tests:
+          - unique
+          - not_null
+      - name: time_band
+        description: Night (00-06), Morning (06-12), Afternoon (12-18), Evening (18-24).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Night", "Morning", "Afternoon", "Evening"]
