@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: stg_bom__daily_weather
+    description: One row per BOM station per day, Oct 2025 to Sep 2026. Combines max temp, min temp, rainfall and solar exposure. Each measure keeps BOM's quality flag where BOM provides one.
+    columns:
+      - name: station_id
+        description: BOM station number, e.g. 066214 (Sydney Observatory Hill).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["023000", "040913", "066214", "086338", "094029"]
+      - name: obs_date
+        description: The date BOM recorded the value against (kept as published, see decision 12).
+        data_tests:
+          - not_null
+      - name: max_temp_c
+        description: Daily maximum temperature (°C). Covers the 24 hours from 9am.
+      - name: max_temp_quality
+        description: Y = quality checked by BOM, N = not yet checked.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Y", "N"]
+      - name: min_temp_c
+        description: Daily minimum temperature (°C). Covers the 24 hours to 9am.
+      - name: min_temp_quality
+        description: Y = quality checked by BOM, N = not yet checked.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Y", "N"]
+      - name: rainfall_mm
+        description: Rainfall (mm) in the 24 hours to 9am.
+      - name: rainfall_period_days
+        description: How many days the rainfall value covers. 1 is normal. More than 1 means a missed reading was added to this day.
+      - name: rainfall_quality
+        description: Y = quality checked by BOM, N = not yet checked.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Y", "N"]
+      - name: solar_exposure_mj_m2
+        description: Daily global solar exposure (MJ/m²). Satellite-based. BOM gives no quality flag for this.
