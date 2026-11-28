@@ -4,11 +4,6 @@ models:
   - name: dim_region
     description: One row per NEM region, with the BOM weather station used for it.
     columns:
-      - name: region_key
-        description: Key used by the fact tables.
-        data_tests:
-          - unique
-          - not_null
       - name: region_code
         description: AEMO region code, e.g. NSW1. This is the key the fact tables use.
         data_tests:

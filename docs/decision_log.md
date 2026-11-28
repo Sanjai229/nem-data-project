@@ -28,7 +28,7 @@ These are the main choices I made in this project, why I made them, and what I g
 | 22 | Keep quality N weather data and show the flag |
 | 23 | dbt setup: login outside the repo, staging views and marts tables |
 | 24 | Removed the dbt State plugin |
-| 25 | region_code is the key of dim_region |
+| 25 | Keys: date_key, time_key and region_code |
 
 ---
 
@@ -252,10 +252,12 @@ These are the main choices I made in this project, why I made them, and what I g
 
 **Downside:** None for this project.
 
-## 25. region_code is the key of dim_region
+## 25. Keys: date_key, time_key and region_code
 
-**What I chose:** Use region_code (e.g. NSW1) as the key of dim_region, instead of a separate number. date_key and time_key stay as they are.
+**What I chose:**
+- date_key as YYYYMMDD (e.g. 20260115) and time_key as HHMM (e.g. 1430)
+- region_code (e.g. NSW1) as the key of dim_region, instead of a separate number
 
-**Why:** region_code is already unique, short and never changes. It's also what anyone reading the data recognises, so there's no need for an extra 1 to 5 number. My mentor suggested this in the NEM-23 review.
+**Why:** date_key and time_key are readable and worked out straight from the timestamp, so the fact tables don't need lookup joins to get them. region_code is already unique, short and never changes, and it's what anyone reading the data recognises. Keeping the dimensions and keys is what makes this a proper star schema. My mentor confirmed both choices in the NEM-23 review.
 
-**Downside:** None for 5 regions.
+**Downside:** None at this size.
