@@ -37,7 +37,7 @@ solar as (
     select
         bureau_of_meteorology_station_number as station_id,
         make_date("year"::int, "month"::int, "day"::int) as obs_date,
-        -- Solar files have no quality column. Change this name if Step 2 showed a different one.
+        -- Solar files have no quality column.
         nullif(daily_global_solar_exposure_mj_m_m, '')::numeric as solar_exposure_mj_m2
     from {{ source('raw', 'bom_solar_exposure') }}
 
