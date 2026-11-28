@@ -1,8 +1,8 @@
 -- One row per region per day: weather from that region's BOM station.
--- Grain: region_key + date_key. Quality flags are kept (decision 22).
+-- Grain: region_code + date_key. Quality flags are kept (decision 22).
 
 select
-    r.region_key,
+    r.region_code,
     to_char(w.obs_date, 'YYYYMMDD')::int as date_key,
     w.max_temp_c,
     w.max_temp_quality,

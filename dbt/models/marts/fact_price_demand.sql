@@ -1,5 +1,5 @@
 -- One row per region per 5-minute interval: price and demand.
--- Grain: region_key + date_key + time_key (docs/star_schema.md).
+-- Grain: region_code + date_key + time_key (docs/star_schema.md).
 -- A full outer join keeps an interval even if price or demand is ever missing for it.
 
 with price as (
@@ -30,13 +30,11 @@ joined as (
 )
 
 select
-    r.region_key,
-    to_char(j.interval_start_aest, 'YYYYMMDD')::int as date_key,
-    to_char(j.interval_start_aest, 'HH24MI')::int as time_key,
-    j.interval_start_aest,
-    j.interval_end_aest,
-    j.price_aud_mwh,
-    j.demand_mw
-from joined as j
-inner join {{ ref('dim_region') }} as r
-    on r.region_code = j.region_code
+    region_code,
+    to_char(interval_start_aest, 'YYYYMMDD')::int as date_key,
+    to_char(interval_start_aest, 'HH24MI')::int as time_key,
+    interval_start_aest,
+    interval_end_aest,
+    price_aud_mwh,
+    demand_mw
+from joined
