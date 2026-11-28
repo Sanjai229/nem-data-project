@@ -10,7 +10,7 @@ models:
           - unique
           - not_null
       - name: region_code
-        description: AEMO region code, e.g. NSW1.
+        description: AEMO region code, e.g. NSW1. This is the key the fact tables use.
         data_tests:
           - unique
           - not_null
