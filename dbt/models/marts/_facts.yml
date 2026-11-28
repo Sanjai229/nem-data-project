@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: fact_price_demand
+    description: One row per region per 5-minute interval, with price and demand. Grain is region_key + date_key + time_key.
+    columns:
+      - name: region_key
+        description: Links to dim_region.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_region')
+                field: region_key
+      - name: date_key
+        description: Market day of the interval, links to dim_date.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: time_key
+        description: Interval start as HHMM, links to dim_time.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_time')
+                field: time_key
+      - name: interval_start_aest
+        description: Start of the interval, AEST.
+      - name: interval_end_aest
+        description: End of the interval. AEMO's original timestamp.
+      - name: price_aud_mwh
+        description: Regional reference price in $/MWh.
+      - name: demand_mw
+        description: TOTALDEMAND in MW. Excludes rooftop solar.
+
+  - name: fact_daily_weather
+    description: One row per region per day, with weather from the region's BOM station. Grain is region_key + date_key.
+    columns:
+      - name: region_key
+        description: Links to dim_region.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_region')
+                field: region_key
+      - name: date_key
+        description: Date BOM recorded the values against, links to dim_date.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
